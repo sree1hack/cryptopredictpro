@@ -124,6 +124,16 @@ def fetch_binance_price_by_mode(symbol, exchange_mode):
     if exchange_mode == "testnet":
         base_urls = [BINANCE_TESTNET_BASE_URL]
     else:
+        # Try KuCoin first to bypass Binance IP blocks
+        try:
+            kucoin_symbol = symbol.replace("USDT", "-USDT")
+            resp = requests.get(f"https://api.kucoin.com/api/v1/market/orderbook/level1?symbol={kucoin_symbol}", timeout=5)
+            payload = resp.json()
+            if payload.get("data") and payload["data"].get("price"):
+                return float(payload["data"]["price"])
+        except Exception:
+            pass
+            
         base_urls = [BINANCE_BASE_URL, "https://api1.binance.com", "https://api2.binance.com", "https://api3.binance.com"]
         
     for base in base_urls:
@@ -183,18 +193,29 @@ def get_all_prices():
         }
         base_urls = ["https://api.binance.com", "https://api1.binance.com", "https://api2.binance.com", "https://api3.binance.com"]
         ticker_data = None
-        for base in base_urls:
-            try:
-                resp = requests.get(f"{base}/api/v3/ticker/price", timeout=5)
-                data = resp.json()
-                if isinstance(data, list):
-                    ticker_data = data
-                    break
-            except Exception:
-                pass
+        
+        # Try KuCoin first
+        try:
+            resp = requests.get("https://api.kucoin.com/api/v1/market/allTickers", timeout=8)
+            data = resp.json().get("data", {}).get("ticker", [])
+            if data:
+                ticker_data = [{"symbol": item["symbol"].replace("-", ""), "price": item["last"]} for item in data if item.get("symbol") and item.get("last")]
+        except Exception:
+            pass
+            
+        if not ticker_data:
+            for base in base_urls:
+                try:
+                    resp = requests.get(f"{base}/api/v3/ticker/price", timeout=5)
+                    data = resp.json()
+                    if isinstance(data, list):
+                        ticker_data = data
+                        break
+                except Exception:
+                    pass
                 
         if not ticker_data:
-            raise Exception("All Binance endpoints failed or IP is blocked")
+            raise Exception("All Binance and KuCoin endpoints failed or IP is blocked")
             
         ticker_map = {item['symbol']: float(item['price']) for item in ticker_data}
         usd_inr = fetch_usd_to_inr()

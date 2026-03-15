@@ -1,1 +1,1 @@
-web: sh -c "python -c 'from app import background_sync; background_sync()' & gunicorn app:app"
+web: sh -c "python -u -c 'from app import background_sync; background_sync()' & gunicorn app:app"
