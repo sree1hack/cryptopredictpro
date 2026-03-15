@@ -178,6 +178,8 @@ def get_all_prices():
         }
         resp = requests.get("https://api.binance.com/api/v3/ticker/price", timeout=8)
         ticker_data = resp.json()
+        if not isinstance(ticker_data, list):
+            raise Exception(f"Binance API returned invalid data (possible IP block): {ticker_data}")
         ticker_map = {item['symbol']: float(item['price']) for item in ticker_data}
         usd_inr = fetch_usd_to_inr()
         prices = {}

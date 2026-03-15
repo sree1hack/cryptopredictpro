@@ -38,8 +38,8 @@ def get_last_timestamp(coin, timeframe):
         row = cursor.fetchone()
         if row and row[0]:
             return row[0]
-        # Default to last 30 days for new coins
-        return int(time.time()) - (86400 * 30)
+        # Default to last 100 days for new coins so daily models have 100 points
+        return int(time.time()) - (86400 * 100)
     finally:
         conn.close()
 
