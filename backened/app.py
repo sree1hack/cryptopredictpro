@@ -121,15 +121,20 @@ def get_binance_base_url(exchange_mode):
 
 
 def fetch_binance_price_by_mode(symbol, exchange_mode):
-    resp = requests.get(
-        f"{get_binance_base_url(exchange_mode)}/api/v3/ticker/price",
-        params={"symbol": symbol},
-        timeout=8
-    )
-    payload = resp.json() if resp.status_code == 200 else {}
-    if not payload.get("price"):
-        return None
-    return float(payload["price"])
+    if exchange_mode == "testnet":
+        base_urls = [BINANCE_TESTNET_BASE_URL]
+    else:
+        base_urls = [BINANCE_BASE_URL, "https://api1.binance.com", "https://api2.binance.com", "https://api3.binance.com"]
+        
+    for base in base_urls:
+        try:
+            resp = requests.get(f"{base}/api/v3/ticker/price", params={"symbol": symbol}, timeout=5)
+            payload = resp.json() if resp.status_code == 200 else {}
+            if payload.get("price"):
+                return float(payload["price"])
+        except Exception:
+            pass
+    return None
 
 
 def sign_binance_params(params, api_secret):
@@ -176,10 +181,21 @@ def get_all_prices():
             "XRP": "XRPUSDT", "LINK": "LINKUSDT", "BCH": "BCHUSDT", "BNB": "BNBUSDT",
             "ADA": "ADAUSDT", "AVAX": "AVAXUSDT", "SOL": "SOLUSDT"
         }
-        resp = requests.get("https://api.binance.com/api/v3/ticker/price", timeout=8)
-        ticker_data = resp.json()
-        if not isinstance(ticker_data, list):
-            raise Exception(f"Binance API returned invalid data (possible IP block): {ticker_data}")
+        base_urls = ["https://api.binance.com", "https://api1.binance.com", "https://api2.binance.com", "https://api3.binance.com"]
+        ticker_data = None
+        for base in base_urls:
+            try:
+                resp = requests.get(f"{base}/api/v3/ticker/price", timeout=5)
+                data = resp.json()
+                if isinstance(data, list):
+                    ticker_data = data
+                    break
+            except Exception:
+                pass
+                
+        if not ticker_data:
+            raise Exception("All Binance endpoints failed or IP is blocked")
+            
         ticker_map = {item['symbol']: float(item['price']) for item in ticker_data}
         usd_inr = fetch_usd_to_inr()
         prices = {}
