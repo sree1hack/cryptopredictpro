@@ -28,7 +28,7 @@ def get_last_timestamp(coin, timeframe):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        query = "SELECT MAX(timestamp) FROM ohlcv WHERE coin = ? AND timeframe = ?"
+        query = "SELECT MAX(timestamp), COUNT(*) FROM ohlcv WHERE coin = ? AND timeframe = ?"
         # Check if SQLite or Postgres for param symbol
         if hasattr(cursor, 'description') and not hasattr(cursor, 'cursor_factory'): # SQLite
              cursor.execute(query, (coin, timeframe))
@@ -36,7 +36,7 @@ def get_last_timestamp(coin, timeframe):
              cursor.execute(query.replace("?", "%s"), (coin, timeframe))
              
         row = cursor.fetchone()
-        if row and row[0]:
+        if row and row[0] and row[1] > 65:
             return row[0]
         # Default to last 100 days for new coins so daily models have 100 points
         return int(time.time()) - (86400 * 100)
