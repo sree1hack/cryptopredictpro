@@ -6,7 +6,7 @@ import { formatINRPrice } from '../../../services/predictionApi';
 const PredictionChart = ({ predictionData, loading, selectedCrypto }) => {
   if (loading) {
     return (
-      <div className="bg-card rounded-lg border border-border p-6 shadow-card h-96">
+      <div className="neo-card hud-border p-6 h-96">
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
@@ -21,7 +21,7 @@ const PredictionChart = ({ predictionData, loading, selectedCrypto }) => {
 
   if (!predictionData || predictionData?.length === 0) {
     return (
-      <div className="bg-card rounded-lg border border-border p-6 shadow-card h-96">
+      <div className="neo-card hud-border p-6 h-96">
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
@@ -44,10 +44,10 @@ const PredictionChart = ({ predictionData, loading, selectedCrypto }) => {
   };
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6 shadow-card">
+    <div className="neo-card hud-border p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
-          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+          <div className="w-10 h-10 bg-primary/15 rounded-xl flex items-center justify-center mr-3 soft-glow">
             <Icon name="BarChart3" size={20} color="var(--color-primary)" />
           </div>
           <div>
@@ -70,7 +70,7 @@ const PredictionChart = ({ predictionData, loading, selectedCrypto }) => {
       </div>
       
       {/* Live data indicator */}
-      <div className="flex items-center mb-4 p-2 bg-success/10 border border-success/20 rounded">
+      <div className="flex items-center mb-4 p-2 bg-success/10 border border-success/20 rounded-xl">
         <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></div>
         <span className="text-xs text-success">Live Binance Data • Updated in Real-time</span>
       </div>
@@ -91,9 +91,9 @@ const PredictionChart = ({ predictionData, loading, selectedCrypto }) => {
             />
             <Tooltip 
               contentStyle={{
-                backgroundColor: 'var(--color-card)',
-                border: '1px solid var(--color-border)',
-                borderRadius: '8px',
+                backgroundColor: 'rgba(8,22,43,0.95)',
+                border: '1px solid rgba(97,130,176,0.3)',
+                borderRadius: '12px',
                 color: 'var(--color-foreground)'
               }}
               formatter={formatTooltipValue}

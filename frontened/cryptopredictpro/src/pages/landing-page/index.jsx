@@ -1,137 +1,107 @@
 import React, { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
+
+const rise = {
+  initial: { opacity: 0, y: 18 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] }
+};
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
-  // Check if user is already logged in
   useEffect(() => {
     const savedUser = localStorage.getItem('cryptoUser');
-    if (savedUser) {
-      navigate('/dashboard');
-    }
+    if (savedUser) navigate('/dashboard');
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-[#030712] text-white selection:bg-primary/30 selection:text-primary-foreground overflow-x-hidden">
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
+    <div className="min-h-screen text-foreground overflow-x-hidden">
+      <div className="absolute inset-0 grid-background opacity-40 pointer-events-none" />
+      <div className="absolute left-[-120px] top-20 h-72 w-72 bg-primary/20 rounded-full blur-[96px] floating-orb" />
+      <div className="absolute right-[-120px] top-44 h-72 w-72 bg-accent/20 rounded-full blur-[96px] floating-orb" />
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-white/5 bg-black/20">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-          <div className="flex items-center space-x-3 group cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-              <Icon name="TrendingUp" size={24} color="white" />
+      <header className="relative z-20 border-b border-border/50 bg-card/60 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center soft-glow">
+              <Icon name="TrendingUp" size={22} color="white" />
             </div>
-            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
-              CryptoPredictPro
-            </span>
+            <span className="ml-3 text-xl font-display font-bold text-gradient">CryptoPredictPro</span>
           </div>
-
-          <div className="flex items-center space-x-6">
-            <Link to="/login" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+          <div className="flex items-center gap-3">
+            <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-smooth">
               Sign In
             </Link>
-            <Link to="/login">
-              <Button size="sm" className="rounded-full bg-white text-black hover:bg-white/90 px-6">
-                Get Started
-              </Button>
+            <Link to="/sign-up">
+              <Button size="sm">Launch Workspace</Button>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-20 px-6 z-10">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-white/60 mb-8 animate-fade-in">
-            <span className="w-2 h-2 bg-success rounded-full animate-ping"></span>
-            <span>Market Prediction Engine v2.0 is Live</span>
-          </div>
+      <main className="relative z-10">
+        <section className="max-w-7xl mx-auto px-6 pt-24 pb-16">
+          <motion.div {...rise} className="glass-panel rounded-3xl p-8 lg:p-12 hud-border">
+            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground mb-4">Future-Ready Trading Intelligence</p>
+            <h1 className="text-4xl lg:text-6xl font-display font-bold leading-tight max-w-4xl">
+              AI Forecasting + Live Execution in one <span className="text-gradient">futuristic control layer</span>
+            </h1>
+            <p className="mt-6 text-muted-foreground max-w-2xl">
+              Predict crypto movement with LSTM-based models, monitor confidence in real time, and shift into live trading with guarded execution from the same dashboard.
+            </p>
 
-          <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-8 leading-[1.1]">
-            Predict the Future of
-            <span className="block bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary animate-gradient-x">
-              Crypto Assets
-            </span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-white/60 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Harness the power of deep learning and real-time Binance analytics to stay ahead
-            of the market. Professional-grade predictions at your fingertips.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link to="/login">
-              <Button size="lg" className="rounded-full px-10 h-14 text-lg bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20">
-                Start Forecasting Now
-                <Icon name="ArrowRight" size={20} className="ml-2" />
-              </Button>
-            </Link>
-            <div className="flex -space-x-3 items-center ml-4">
-              {[1, 2, 3, 4].map((i) => (
-                <img key={i} className="w-10 h-10 rounded-full border-2 border-[#030712]" src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
-              ))}
-              <span className="ml-6 text-sm text-white/40">+2.4k traders joined</span>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <Link to="/sign-up">
+                <Button size="xl" iconName="Sparkles">
+                  Start Predicting
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button variant="outline" size="xl" iconName="Wallet">
+                  Open Trading Desk
+                </Button>
+              </Link>
             </div>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        </section>
 
-      {/* Features - Glassmorphism cards */}
-      <section className="py-24 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="group p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-500">
-              <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center mb-6 text-primary group-hover:scale-110 transition-transform">
-                <Icon name="Brain" size={24} />
+        <section className="max-w-7xl mx-auto px-6 pb-16 grid md:grid-cols-3 gap-6">
+          {[
+            {
+              icon: 'Brain',
+              title: 'Neural Forecast Engine',
+              text: 'Per-coin hourly and daily models with refreshed metrics and predictions.'
+            },
+            {
+              icon: 'ShieldCheck',
+              title: 'Risk-Aware Live Trading',
+              text: 'Built-in guardrails, configurable limits, and explicit confirmations for real orders.'
+            },
+            {
+              icon: 'Activity',
+              title: 'Operational Visibility',
+              text: 'Unified prediction history, confidence tracking, and trade activity logs.'
+            }
+          ].map((item, index) => (
+            <motion.div
+              key={item.title}
+              {...rise}
+              transition={{ ...rise.transition, delay: 0.12 + index * 0.08 }}
+              className="neo-card hud-border p-6"
+            >
+              <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center soft-glow">
+                <Icon name={item.icon} size={20} color="var(--color-primary)" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">Deep Learning</h3>
-              <p className="text-white/50 leading-relaxed">
-                LSTM neural networks trained on years of historical data to identify complex recurring patterns in price action.
-              </p>
-            </div>
-
-            <div className="group p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-500">
-              <div className="w-12 h-12 bg-accent/20 rounded-2xl flex items-center justify-center mb-6 text-accent group-hover:scale-110 transition-transform">
-                <Icon name="Zap" size={24} />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Real-Time Sync</h3>
-              <p className="text-white/50 leading-relaxed">
-                Direct integration with Binance exchange for millisecond-perfect data synchronization and instant analysis.
-              </p>
-            </div>
-
-            <div className="group p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-500">
-              <div className="w-12 h-12 bg-success/20 rounded-2xl flex items-center justify-center mb-6 text-success group-hover:scale-110 transition-transform">
-                <Icon name="ShieldCheck" size={24} />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Statistically Verified</h3>
-              <p className="text-white/50 leading-relaxed">
-                Transparent confidence scores and historical accuracy tracking for every asset we predict.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 border-t border-white/5 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:row justify-between items-center opacity-40">
-          <span className="text-sm">© 2024 CryptoPredictPro. Advanced AI Analytics.</span>
-          <div className="flex space-x-8 mt-6 md:mt-0 text-sm">
-            <a href="#" className="hover:text-white">Twitter</a>
-            <a href="#" className="hover:text-white">Discord</a>
-            <a href="#" className="hover:text-white">API Docs</a>
-          </div>
-        </div>
-      </footer>
+              <h3 className="mt-4 text-xl font-display font-semibold">{item.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{item.text}</p>
+            </motion.div>
+          ))}
+        </section>
+      </main>
     </div>
   );
 };

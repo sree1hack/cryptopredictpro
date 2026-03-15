@@ -12,9 +12,9 @@ const PredictionControls = ({
   const canPredict = selectedCrypto && selectedTimeframe && !loading;
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6 shadow-card">
+    <div className="neo-card hud-border p-6">
       <div className="flex items-center mb-4">
-        <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center mr-3">
+        <div className="w-10 h-10 bg-success/15 rounded-xl flex items-center justify-center mr-3 soft-glow">
           <Icon name="Zap" size={20} color="var(--color-success)" />
         </div>
         <div>
@@ -32,12 +32,12 @@ const PredictionControls = ({
         iconPosition="left"
         iconSize={20}
         fullWidth
-        className="h-14 text-base font-semibold"
+        className="h-14 text-base font-semibold tracking-wide"
       >
         {loading ? 'Generating Prediction...' : 'Predict Price'}
       </Button>
       {!canPredict && !loading && (
-        <div className="mt-4 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+        <div className="mt-4 p-3 bg-warning/10 border border-warning/30 rounded-xl">
           <div className="flex items-center">
             <Icon name="AlertTriangle" size={16} color="var(--color-warning)" className="mr-2" />
             <span className="text-sm text-warning">
@@ -47,7 +47,7 @@ const PredictionControls = ({
         </div>
       )}
       {lastPrediction && (
-        <div className="mt-4 p-3 bg-muted rounded-lg">
+        <div className="mt-4 p-3 bg-muted/70 rounded-xl border border-border/70">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Icon name="Clock" size={16} color="var(--color-muted-foreground)" className="mr-2" />

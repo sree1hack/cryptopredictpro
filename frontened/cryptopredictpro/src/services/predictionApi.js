@@ -3,7 +3,14 @@ import axios from 'axios';
 // ----------------------------
 // Configuration & Mappings
 // ----------------------------
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5001";
+const resolveApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') return 'http://127.0.0.1:5001';
+  return `http://${host}:5001`;
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
 const BINANCE_API_URL = "https://api.binance.com/api/v3/klines";
 
 // Model name mapping for cryptocurrencies
@@ -17,8 +24,13 @@ const MODEL_NAME_MAP = {
   "XRP": { "binance": "XRPUSDT", "model": "RIPPLE_INR.keras" },
   "LINK": { "binance": "LINKUSDT", "model": "CHAINLINK_INR.keras" },
   "BCH": { "binance": "BCHUSDT", "model": "BITCOIN_CASH_INR.keras" },
-  "BNB": { "binance": "BNBUSDT", "model": "BINANCE_INR.keras" }
+  "BNB": { "binance": "BNBUSDT", "model": "BINANCE_INR.keras" },
+  "SOL": { "binance": "SOLUSDT", "model": "SOLANA_INR.keras" },
+  "ADA": { "binance": "ADAUSDT", "model": "CARDANO_INR.keras" },
+  "AVAX": { "binance": "AVAXUSDT", "model": "AVALANCHE_INR.keras" }
 };
+
+const COIN_ORDER = ["BTC", "ETH", "DOGE", "LTC", "DOT", "MATIC", "XRP", "LINK", "BCH", "BNB", "SOL", "ADA", "AVAX"];
 
 // USD to INR conversion rate (should be updated regularly in production)
 const USD_TO_INR = 88.19;
@@ -32,7 +44,7 @@ const USD_TO_INR = 88.19;
  */
 export const fetchBinanceData = async (symbol = "BTCUSDT", interval = "1h", lookback = "200") => {
   try {
-    const url = `${BINANCE_API_URL}?symbol = ${symbol}& interval=${interval}& limit=${lookback} `;
+    const url = `${BINANCE_API_URL}?symbol=${symbol}&interval=${interval}&limit=${lookback}`;
     const response = await axios.get(url);
 
     if (!response?.data || !Array.isArray(response.data)) {
@@ -51,7 +63,27 @@ export const fetchBinanceData = async (symbol = "BTCUSDT", interval = "1h", look
     return data.filter(item => item.close && !isNaN(item.close));
   } catch (error) {
     console.error('Error fetching Binance data:', error);
-    throw new Error(`Failed to fetch data for ${symbol}: ${error.message} `);
+    throw new Error(`Failed to fetch data for ${symbol}: ${error.message}`);
+  }
+};
+
+export const getAllCoinsLivePrices = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/prices`, {
+      timeout: 12000
+    });
+
+    if (!response?.data?.success) {
+      throw new Error(response?.data?.error || "Invalid price response");
+    }
+
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      prices: {},
+      error: error.message || "Failed to load live prices"
+    };
   }
 };
 
@@ -122,13 +154,13 @@ const generateAnalysisSummary = (prediction, coin, timeframe) => {
   else if (priceChange < -2) trend = 'bearish';
 
   const timeframeText = timeframe?.type === 'hourly'
-    ? `${timeframe.value} hour${timeframe.value > 1 ? 's' : ''} `
-    : `${timeframe.value} day${timeframe.value > 1 ? 's' : ''} `;
+    ? `${timeframe.value} hour${timeframe.value > 1 ? 's' : ''}`
+    : `${timeframe.value} day${timeframe.value > 1 ? 's' : ''}`;
 
   const analyses = {
-    bullish: `Technical analysis indicates ${coin} shows strong upward momentum for the ${timeframeText} timeframe.Current market indicators suggest positive sentiment with potential price appreciation.The AI model predicts continued growth based on recent trading patterns and volume analysis.`,
-    bearish: `Market indicators suggest ${coin} may face downward pressure in the ${timeframeText} period.Technical signals indicate potential consolidation or correction.The AI model recommends caution and risk management for existing positions.`,
-    neutral: `${coin} is expected to trade within a consolidation range for the ${timeframeText} timeframe.Mixed technical signals suggest sideways price action until a clear directional catalyst emerges.The AI model indicates stable but limited price movement.`
+    bullish: `Technical analysis indicates ${coin} shows strong upward momentum for the ${timeframeText} timeframe. Current market indicators suggest positive sentiment with potential price appreciation. The AI model predicts continued growth based on recent trading patterns and volume analysis.`,
+    bearish: `Market indicators suggest ${coin} may face downward pressure in the ${timeframeText} period. Technical signals indicate potential consolidation or correction. The AI model recommends caution and risk management for existing positions.`,
+    neutral: `${coin} is expected to trade within a consolidation range for the ${timeframeText} timeframe. Mixed technical signals suggest sideways price action until a clear directional catalyst emerges. The AI model indicates stable but limited price movement.`
   };
 
   return {
@@ -182,7 +214,7 @@ export const getLivePrediction = async (coin, timeframe) => {
     const predictionResult = {
       predictedPrice: data.predictedPrice || 0,
       currentPrice: data.currentPrice || 0,
-      confidence: data.confidence || 85,
+      confidence: typeof data.confidence === 'number' ? data.confidence : 0,
       timestamp: data.timestamp || new Date().toISOString()
     };
 
@@ -241,8 +273,8 @@ export const validateTimeframe = (timeframe) => {
  * Format price for display in INR
  */
 export const formatINRPrice = (price) => {
-  if (!price || isNaN(price)) return '₹0';
-  return `₹${price?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+  if (!price || isNaN(price)) return 'INR 0';
+  return `INR ${Number(price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 };
 
 /**
@@ -250,4 +282,100 @@ export const formatINRPrice = (price) => {
  */
 export const getINRConversionRate = () => {
   return USD_TO_INR;
+};
+
+export const getTradeQuote = async (symbol, exchangeMode = 'live') => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/trade/quote`, {
+      symbol,
+      exchange_mode: exchangeMode
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || 'Failed to fetch trade quote'
+    };
+  }
+};
+
+export const placePaperTrade = async ({ userId, symbol, side, quantity }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/trade/paper`, {
+      user_id: userId,
+      symbol,
+      side,
+      quantity
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || 'Failed to place paper trade'
+    };
+  }
+};
+
+export const getTradeHistory = async (userId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/trade/history/${userId}`);
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || 'Failed to fetch trade history',
+      history: []
+    };
+  }
+};
+
+export const getTradeConfig = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/trade/config`);
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      liveTradingEnabled: false,
+      error: error.response?.data?.error || 'Failed to fetch trade config'
+    };
+  }
+};
+
+export const getWalletBalances = async ({ apiKey, apiSecret, exchangeMode = 'live' }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/trade/balances`, {
+      api_key: apiKey,
+      api_secret: apiSecret,
+      exchange_mode: exchangeMode
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || 'Failed to fetch balances',
+      balances: []
+    };
+  }
+};
+
+export const placeLiveTrade = async ({ userId, symbol, side, quantity, apiKey, apiSecret, exchangeMode = 'live' }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/trade/live`, {
+      user_id: userId,
+      symbol,
+      side: side.toUpperCase(),
+      quantity,
+      api_key: apiKey,
+      api_secret: apiSecret,
+      exchange_mode: exchangeMode,
+      confirm_live: true
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || 'Failed to place live trade'
+    };
+  }
 };

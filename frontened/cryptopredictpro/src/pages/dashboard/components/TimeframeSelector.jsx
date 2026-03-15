@@ -61,9 +61,9 @@ const TimeframeSelector = ({ selectedTimeframe, onTimeframeChange, loading }) =>
   };
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6 shadow-card">
+    <div className="neo-card hud-border p-6">
       <div className="flex items-center mb-4">
-        <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center mr-3">
+        <div className="w-10 h-10 bg-accent/15 rounded-xl flex items-center justify-center mr-3 soft-glow">
           <Icon name="Timer" size={20} color="var(--color-accent)" />
         </div>
         <div>
@@ -73,13 +73,13 @@ const TimeframeSelector = ({ selectedTimeframe, onTimeframeChange, loading }) =>
       </div>
 
       {/* Tab Selection */}
-      <div className="flex mb-4 bg-muted rounded-lg p-1">
+      <div className="flex mb-4 bg-muted/70 rounded-xl p-1 border border-border/70">
         <button
           onClick={() => handleTabChange('hourly')}
           disabled={loading}
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
             activeTab === 'hourly'
-              ? 'bg-background text-foreground shadow-sm'
+              ? 'bg-card text-foreground shadow-sm'
               : 'text-muted-foreground hover:text-foreground'
           } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
@@ -93,7 +93,7 @@ const TimeframeSelector = ({ selectedTimeframe, onTimeframeChange, loading }) =>
           disabled={loading}
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
             activeTab === 'daily'
-              ? 'bg-background text-foreground shadow-sm'
+              ? 'bg-card text-foreground shadow-sm'
               : 'text-muted-foreground hover:text-foreground'
           } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
@@ -189,7 +189,7 @@ const TimeframeSelector = ({ selectedTimeframe, onTimeframeChange, loading }) =>
 
       {/* Selected Timeframe Display */}
       {selectedTimeframe && (
-        <div className="mt-4 p-3 bg-muted rounded-lg">
+        <div className="mt-4 p-3 bg-muted/70 rounded-xl border border-border/70">
           <div className="flex items-center">
             <Icon name="CheckCircle" size={16} color="var(--color-success)" className="mr-2" />
             <span className="text-sm text-muted-foreground">

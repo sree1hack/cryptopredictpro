@@ -3,6 +3,8 @@ import Image from '../../../components/AppImage';
 import Icon from '../../../components/AppIcon';
 
 const ProfileHeader = ({ user }) => {
+  const providerLabel = user?.provider === 'google' ? 'Google' : 'Email Login';
+
   return (
     <div className="bg-card rounded-lg shadow-card p-6 mb-6">
       <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
@@ -36,7 +38,7 @@ const ProfileHeader = ({ user }) => {
           {/* Provider Badge */}
           <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <Icon name="Shield" size={14} className="mr-2" />
-            Authenticated via {user?.provider}
+            Authenticated via {providerLabel}
           </div>
         </div>
 

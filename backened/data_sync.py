@@ -3,86 +3,56 @@ import pandas as pd
 import requests
 import time
 from datetime import datetime
+from database import get_db_connection
 
 # Configuration
 COINDESK_API_BASE = "https://data-api.coindesk.com"
-USD_TO_INR = 88.19  # Constant for consistency with models
-
-# Absolute paths to ensure it works from any directory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HOURLY_PATH = os.path.join(BASE_DIR, "milestone-1", "hourly")
-DAILY_PATH = os.path.join(BASE_DIR, "milestone-1", "daily")
 
 COINS = {
-    "BTC": "BTC-USD",
-    "ETH": "ETH-USD",
-    "DOGE": "DOGE-USD",
-    "LTC": "LTC-USD",
-    "DOT": "DOT-USD",
-    "MATIC": "MATIC-USD",
-    "XRP": "XRP-USD",
-    "LINK": "LINK-USD",
-    "BCH": "BCH-USD",
-    "BNB": "BNB-USD"
+    "BTC": "BTC-INR",
+    "ETH": "ETH-INR",
+    "DOGE": "DOGE-INR",
+    "LTC": "LITECOIN_INR", # Fixed symbol for LTC
+    "DOT": "DOT-INR",
+    "MATIC": "MATIC-INR",
+    "XRP": "XRP-INR",
+    "LINK": "LINK-INR",
+    "BCH": "BCH-INR",
+    "BNB": "BNB-INR",
+    "SOL": "SOL-INR",
+    "ADA": "ADA-INR",
+    "AVAX": "AVAX-INR"
 }
 
-# Mapping symbols to existing local filenames
-FILE_MAP = {
-    "BTC": "btc_inr",
-    "ETH": "eth_inr",
-    "DOGE": "doge_inr",
-    "LTC": "ltc_inr",
-    "DOT": "dot_inr",
-    "MATIC": "polygon_inr",
-    "XRP": "ripple_inr",
-    "LINK": "link_inr",
-    "BCH": "bch_inr",
-    "BNB": "bnb_inr"
-}
-
-def get_last_timestamp(file_path):
-    if not os.path.exists(file_path):
-        return None
+def get_last_timestamp(coin, timeframe):
+    conn = get_db_connection()
     try:
-        df = pd.read_csv(file_path)
-        return int(df['TIMESTAMP'].max())
-    except Exception as e:
-        print(f"Error reading last timestamp from {file_path}: {e}")
-        return None
-
-def fetch_coindesk_data(endpoint, instrument, limit=2000):
-    url = f"{COINDESK_API_BASE}/index/cc/v1/historical/{endpoint}"
-    params = {
-        "market": "cadli",
-        "instrument": instrument,
-        "limit": limit,
-        "aggregate": 1
-    }
-    try:
-        response = requests.get(url, params=params, timeout=10)
-        if response.status_code == 200:
-            return response.json().get('Data', [])
-    except Exception as e:
-        print(f"Error fetching {instrument} from Coindesk: {e}")
-    return []
+        cursor = conn.cursor()
+        query = "SELECT MAX(timestamp) FROM ohlcv WHERE coin = ? AND timeframe = ?"
+        # Check if SQLite or Postgres for param symbol
+        if hasattr(cursor, 'description') and not hasattr(cursor, 'cursor_factory'): # SQLite
+             cursor.execute(query, (coin, timeframe))
+        else:
+             cursor.execute(query.replace("?", "%s"), (coin, timeframe))
+             
+        row = cursor.fetchone()
+        if row and row[0]:
+            return row[0]
+        # Default to last 30 days for new coins
+        return int(time.time()) - (86400 * 30)
+    finally:
+        conn.close()
 
 def sync_coin_data(coin_name, instrument, interval_type):
-    folder = HOURLY_PATH if interval_type == "hours" else DAILY_PATH
-    filename = f"{FILE_MAP[coin_name]}_{'hourly' if interval_type == 'hours' else 'daily'}.csv"
-    file_path = os.path.join(folder, filename)
+    timeframe = 'hourly' if interval_type == "hours" else 'daily'
+    last_ts = get_last_timestamp(coin_name, timeframe)
     
-    last_ts_file = get_last_timestamp(file_path)
-    if not last_ts_file:
-        print(f"Skipping {coin_name} {interval_type}: CSV not found or invalid.")
-        return
-
-    print(f"Syncing {coin_name} {interval_type} since {pd.to_datetime(last_ts_file, unit='s')}...")
+    print(f"Syncing {coin_name} {timeframe} since {pd.to_datetime(last_ts, unit='s')}...")
     
-    all_new_to_append = []
     current_to_ts = int(time.time())
     chunk_size = 2000
+    all_new_records = []
     
-    # Fetch in batches until we hit last_ts
     while True:
         url = f"{COINDESK_API_BASE}/index/cc/v1/historical/{interval_type}"
         params = {
@@ -96,48 +66,27 @@ def sync_coin_data(coin_name, instrument, interval_type):
         try:
             response = requests.get(url, params=params, timeout=10)
             if response.status_code != 200:
-                print(f"Error: Status {response.status_code}")
                 break
             
             records = response.json().get('Data', [])
             if not records:
                 break
                 
-            batch_to_append = []
             min_batch_ts = records[0]['TIMESTAMP']
             
-            # Filter and convert
             for rec in records:
                 ts = int(rec['TIMESTAMP'])
-                if ts > last_ts_file:
-                    open_inr = float(rec['OPEN']) * USD_TO_INR
-                    high_inr = float(rec['HIGH']) * USD_TO_INR
-                    low_inr = float(rec['LOW']) * USD_TO_INR
-                    close_inr = float(rec['CLOSE']) * USD_TO_INR
-                    
-                    if open_inr < 1 or high_inr < 1 or low_inr < 1 or close_inr < 1:
-                        continue
-                        
-                    batch_to_append.append({
-                        "UNIT": "HOUR" if interval_type == "hours" else "DAY",
-                        "TIMESTAMP": ts,
-                        "TYPE": rec.get('TYPE', '267'),
-                        "MARKET": rec.get('MARKET', 'cadli'),
-                        "INSTRUMENT": instrument,
-                        "OPEN": open_inr,
-                        "HIGH": high_inr,
-                        "LOW": low_inr,
-                        "CLOSE": close_inr,
-                        "DATE": pd.to_datetime(ts, unit='s').strftime('%d-%m-%Y %H.%M' if interval_type == 'hours' else '%Y-%m-%d')
-                    })
+                if ts > last_ts:
+                    all_new_records.append((
+                        coin_name, timeframe, ts,
+                        float(rec['OPEN']), float(rec['HIGH']),
+                        float(rec['LOW']), float(rec['CLOSE']),
+                        pd.to_datetime(ts, unit='s').strftime('%Y-%m-%d %H:%M:%S')
+                    ))
             
-            all_new_to_append.extend(batch_to_append)
-            
-            # If the earliest record in this batch is still after our goal, keep going back
-            if min_batch_ts > last_ts_file and len(records) == chunk_size:
+            if min_batch_ts > last_ts and len(records) == chunk_size:
                 current_to_ts = min_batch_ts - 1
-                print(f"  ...fetched {len(batch_to_append)} records, going further back (current earlist: {pd.to_datetime(min_batch_ts, unit='s')})")
-                time.sleep(0.5) # Be kind to API
+                time.sleep(0.5)
             else:
                 break
                 
@@ -145,22 +94,38 @@ def sync_coin_data(coin_name, instrument, interval_type):
             print(f"Exception during batch fetch: {e}")
             break
 
-    if all_new_to_append:
-        # Sort by timestamp ascending before appending
-        all_new_to_append.sort(key=lambda x: x['TIMESTAMP'])
-        
-        # Remove duplicates if any (just in case)
-        unique_entries = {e['TIMESTAMP']: e for e in all_new_to_append}
-        sorted_unique = sorted(unique_entries.values(), key=lambda x: x['TIMESTAMP'])
-        
-        df_new = pd.DataFrame(sorted_unique)
-        df_new.to_csv(file_path, mode='a', header=False, index=False)
-        print(f"✅ Successfully appended {len(sorted_unique)} new records to {filename}")
+    if all_new_records:
+        conn = get_db_connection()
+        try:
+            cursor = conn.cursor()
+            # Prepare query for upsert
+            is_postgres = hasattr(cursor, 'cursor_factory')
+            
+            if is_postgres:
+                from psycopg2.extras import execute_values
+                query = """
+                    INSERT INTO ohlcv (coin, timeframe, timestamp, open, high, low, close, date)
+                    VALUES %s
+                    ON CONFLICT (coin, timeframe, timestamp) DO UPDATE SET
+                    open = EXCLUDED.open, high = EXCLUDED.high, low = EXCLUDED.low, close = EXCLUDED.close
+                """
+                execute_values(cursor, query, all_new_records)
+            else:
+                query = """
+                    INSERT OR REPLACE INTO ohlcv (coin, timeframe, timestamp, open, high, low, close, date)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """
+                cursor.executemany(query, all_new_records)
+            
+            conn.commit()
+            print(f"✅ Successfully synced {len(all_new_records)} records for {coin_name} {timeframe}")
+        finally:
+            conn.close()
     else:
-        print(f"No newer data found for {coin_name} above {last_ts_file}")
+        print(f"No newer data found for {coin_name} {timeframe}")
 
 def run_sync():
-    print(f"🚀 Starting Real-time Data Sync Engine at {datetime.now()}")
+    print(f"🚀 Starting Centralized Data Sync Engine at {datetime.now()}")
     for coin, instrument in COINS.items():
         sync_coin_data(coin, instrument, "hours")
         sync_coin_data(coin, instrument, "days")

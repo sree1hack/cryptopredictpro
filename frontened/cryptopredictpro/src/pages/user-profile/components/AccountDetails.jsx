@@ -3,6 +3,7 @@ import Icon from '../../../components/AppIcon';
 
 const AccountDetails = ({ user }) => {
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString)?.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -27,19 +28,19 @@ const AccountDetails = ({ user }) => {
     },
     {
       label: 'Authentication Provider',
-      value: user?.provider,
+      value: user?.provider === 'google' ? 'Google' : 'Email',
       icon: 'Shield',
       editable: false
     },
     {
       label: 'Account Created',
-      value: formatDate(user?.createdAt),
+      value: formatDate(user?.created_at || user?.createdAt),
       icon: 'Calendar',
       editable: false
     },
     {
       label: 'Last Login',
-      value: formatDate(user?.lastLogin),
+      value: formatDate(user?.last_login || user?.lastLogin),
       icon: 'Clock',
       editable: false
     },
@@ -58,7 +59,7 @@ const AccountDetails = ({ user }) => {
           Account Details
         </h2>
         <div className="text-sm text-muted-foreground">
-          Managed by {user?.provider}
+          Managed by {user?.provider === 'google' ? 'Google' : 'Email Login'}
         </div>
       </div>
       <div className="space-y-4">
@@ -92,7 +93,7 @@ const AccountDetails = ({ user }) => {
           <Icon name="Info" size={16} className="text-primary mt-0.5" />
           <div className="text-sm text-muted-foreground">
             <p className="font-medium text-foreground mb-1">Account Information</p>
-            <p>Your account details are managed by {user?.provider} and cannot be edited directly. To update your information, please visit your {user?.provider} account settings.</p>
+            <p>Your account details are managed by your authentication provider and cannot be edited directly from this page.</p>
           </div>
         </div>
       </div>

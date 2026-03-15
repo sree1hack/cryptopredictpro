@@ -5,7 +5,7 @@ import { formatINRPrice } from '../../../services/predictionApi';
 const PredictionSummary = ({ predictionSummary, loading, selectedCrypto, selectedTimeframe }) => {
   if (loading) {
     return (
-      <div className="bg-card rounded-lg border border-border p-6 shadow-card">
+      <div className="neo-card hud-border p-6">
         <div className="animate-pulse">
           <div className="flex items-center mb-4">
             <div className="w-10 h-10 bg-muted rounded-lg mr-3"></div>
@@ -26,7 +26,7 @@ const PredictionSummary = ({ predictionSummary, loading, selectedCrypto, selecte
 
   if (!predictionSummary) {
     return (
-      <div className="bg-card rounded-lg border border-border p-6 shadow-card">
+      <div className="neo-card hud-border p-6">
         <div className="flex items-center mb-4">
           <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center mr-3">
             <Icon name="FileText" size={20} color="var(--color-muted-foreground)" />
@@ -66,11 +66,11 @@ const PredictionSummary = ({ predictionSummary, loading, selectedCrypto, selecte
   };
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6 shadow-card">
+    <div className="neo-card hud-border p-6">
       <div className="flex items-center mb-4">
-        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
-          <Icon name="FileText" size={20} color="var(--color-primary)" />
-        </div>
+          <div className="w-10 h-10 bg-primary/15 rounded-xl flex items-center justify-center mr-3 soft-glow">
+            <Icon name="FileText" size={20} color="var(--color-primary)" />
+          </div>
         <div>
           <h3 className="text-lg font-semibold text-foreground">Prediction Summary</h3>
           <p className="text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ const PredictionSummary = ({ predictionSummary, loading, selectedCrypto, selecte
         </div>
       </div>
       <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-muted/70 rounded-xl border border-border/70">
           <div className="flex items-center">
             <Icon name={icon?.name} size={20} color={icon?.color} className="mr-3" />
             <div>
@@ -97,7 +97,7 @@ const PredictionSummary = ({ predictionSummary, loading, selectedCrypto, selecte
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
+          <div className="p-3 bg-success/10 border border-success/20 rounded-xl">
             <div className="flex items-center mb-2">
               <Icon name="Target" size={16} color="var(--color-success)" className="mr-2" />
               <span className="text-sm font-medium text-success">Target Price</span>
@@ -107,7 +107,7 @@ const PredictionSummary = ({ predictionSummary, loading, selectedCrypto, selecte
             </p>
           </div>
 
-          <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
+          <div className="p-3 bg-warning/10 border border-warning/20 rounded-xl">
             <div className="flex items-center mb-2">
               <Icon name="AlertTriangle" size={16} color="var(--color-warning)" className="mr-2" />
               <span className="text-sm font-medium text-warning">AI Confidence</span>
@@ -118,7 +118,7 @@ const PredictionSummary = ({ predictionSummary, loading, selectedCrypto, selecte
           </div>
         </div>
 
-        <div className="p-4 bg-muted rounded-lg">
+        <div className="p-4 bg-muted/70 rounded-xl border border-border/70">
           <div className="flex items-start">
             <Icon name="Info" size={16} color="var(--color-primary)" className="mr-2 mt-0.5" />
             <div>

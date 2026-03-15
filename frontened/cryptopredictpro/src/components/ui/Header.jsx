@@ -42,18 +42,18 @@ const Header = ({ user, onLogout }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-card border-b border-border z-1000">
-      <div className="flex items-center justify-between h-16 px-4 lg:px-6">
+    <header className="fixed top-0 left-0 right-0 z-1000 border-b border-border/70 bg-card/70 backdrop-blur-xl">
+      <div className="grid-background flex items-center justify-between h-16 px-4 lg:px-6">
         {/* Logo */}
         <div className="flex items-center">
           <div 
             className="flex items-center cursor-pointer transition-smooth hover:opacity-80"
             onClick={() => handleNavigation('/dashboard')}
           >
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mr-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mr-3 soft-glow">
               <Icon name="TrendingUp" size={20} color="white" />
             </div>
-            <span className="text-xl font-bold text-foreground">
+            <span className="text-xl font-bold text-gradient font-display">
               CryptoPredictPro
             </span>
           </div>
@@ -67,8 +67,8 @@ const Header = ({ user, onLogout }) => {
               onClick={() => handleNavigation(item?.path)}
               className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-smooth ${
                 isActivePath(item?.path)
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? 'bg-primary/20 text-foreground soft-glow'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
               }`}
             >
               <Icon name={item?.icon} size={16} className="mr-2" />
@@ -79,7 +79,7 @@ const Header = ({ user, onLogout }) => {
           {user && (
             <div className="flex items-center ml-4 pl-4 border-l border-border">
               <div className="flex items-center mr-3">
-                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-secondary/80 rounded-full flex items-center justify-center border border-border/70">
                   <Icon name="User" size={16} color="white" />
                 </div>
                 <span className="ml-2 text-sm font-medium text-foreground hidden lg:block">
@@ -112,7 +112,7 @@ const Header = ({ user, onLogout }) => {
       </div>
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-card border-t border-border shadow-modal z-1001">
+        <div className="md:hidden bg-card/95 backdrop-blur-xl border-t border-border shadow-modal z-1001">
           <div className="px-4 py-2 space-y-1">
             {navigationItems?.map((item) => (
               <button

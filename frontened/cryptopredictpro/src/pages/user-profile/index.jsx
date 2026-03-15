@@ -7,40 +7,34 @@ import AccountDetails from './components/AccountDetails';
 import ActivitySection from './components/ActivitySection';
 import SecuritySection from './components/SecuritySection';
 import DataManagement from './components/DataManagement';
+import { getUserStats } from '../../services/predictionApi';
 
 const UserProfile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Mock user data - in real app this would come from authentication context
-  const mockUser = {
-    id: "user_2025_001",
-    name: "John Anderson",
-    email: "john.anderson@gmail.com",
-    provider: "Google",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    createdAt: "2024-12-15T10:30:00Z",
-    lastLogin: "2025-01-11T13:45:00Z",
-    isVerified: true
-  };
+  const [stats, setStats] = useState({ totalPredictions: 0, accuracyRate: 0, history: [] });
+  const [sessionInfo, setSessionInfo] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('authSession') || '{}');
+    } catch {
+      return {};
+    }
+  });
+  const [sessionMessage, setSessionMessage] = useState('');
+  const [sessionError, setSessionError] = useState('');
 
   useEffect(() => {
-    // Simulate loading user data
-    const loadUserData = async () => {
+    const loadUserData = () => {
       try {
-        // In real app, check authentication and fetch user data
-        const storedUser = localStorage.getItem('user');
+        const storedUser = localStorage.getItem('cryptoUser');
         if (storedUser) {
           setUser(JSON.parse(storedUser));
         } else {
-          // Use mock data for demo
-          setUser(mockUser);
-          localStorage.setItem('user', JSON.stringify(mockUser));
+          navigate('/login');
         }
       } catch (error) {
         console.error('Error loading user data:', error);
-        // Redirect to login if no user found
         navigate('/login');
       } finally {
         setLoading(false);
@@ -50,16 +44,43 @@ const UserProfile = () => {
     loadUserData();
   }, [navigate]);
 
+  useEffect(() => {
+    const loadStats = async () => {
+      if (!user?.id) return;
+      const data = await getUserStats(user.id);
+      if (data?.success) {
+        setStats(data);
+      }
+    };
+    loadStats();
+  }, [user]);
+
   const handleLogout = () => {
-    // Clear user data and redirect to login
-    localStorage.removeItem('user');
+    localStorage.removeItem('cryptoUser');
     localStorage.removeItem('authToken');
+    localStorage.removeItem('authSession');
     setUser(null);
     navigate('/login');
   };
 
   const handleNavigateToDashboard = () => {
     navigate('/dashboard');
+  };
+
+  const handleRefreshSession = () => {
+    try {
+      setSessionError('');
+      const refreshedAt = new Date().toISOString();
+      const expiresAt = new Date(Date.now() + (24 * 60 * 60 * 1000)).toISOString();
+      const updatedSession = { refreshedAt, expiresAt };
+      localStorage.setItem('authToken', `token_${Date.now()}`);
+      localStorage.setItem('authSession', JSON.stringify(updatedSession));
+      setSessionInfo(updatedSession);
+      setSessionMessage('Session refreshed successfully.');
+      setTimeout(() => setSessionMessage(''), 3000);
+    } catch (error) {
+      setSessionError('Could not refresh session. Please try again.');
+    }
   };
 
   if (loading) {
@@ -138,12 +159,19 @@ const UserProfile = () => {
               {/* Left Column */}
               <div className="space-y-6">
                 <AccountDetails user={user} />
-                <ActivitySection user={user} />
+                <ActivitySection user={user} history={stats.history} />
               </div>
 
               {/* Right Column */}
               <div className="space-y-6">
-                <SecuritySection user={user} onLogout={handleLogout} />
+                <SecuritySection
+                  user={user}
+                  sessionInfo={sessionInfo}
+                  sessionMessage={sessionMessage}
+                  sessionError={sessionError}
+                  onLogout={handleLogout}
+                  onRefreshSession={handleRefreshSession}
+                />
                 <DataManagement user={user} />
               </div>
             </div>

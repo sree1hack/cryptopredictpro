@@ -1,49 +1,33 @@
 import React from 'react';
 import Icon from '../../../components/AppIcon';
 
-const ActivitySection = ({ user }) => {
+const ActivitySection = ({ user, history = [] }) => {
   const activityData = [
     {
-      id: 1,
+      id: 'login',
       action: 'Account Login',
-      timestamp: user?.lastLogin,
-      device: 'Chrome on Windows',
-      location: 'New York, USA',
+      timestamp: user?.last_login || user?.lastLogin,
+      device: 'Current Browser',
+      location: 'Local Session',
       status: 'success'
     },
-    {
-      id: 2,
-      action: 'Profile Viewed',
-      timestamp: '2025-01-11T12:30:00Z',
-      device: 'Chrome on Windows',
-      location: 'New York, USA',
+    ...history.map((item, index) => ({
+      id: `pred-${index}`,
+      action: `Prediction Generated (${item.coin})`,
+      timestamp: item.timestamp,
+      device: 'Current Browser',
+      location: item.timeframe,
       status: 'info'
-    },
+    })),
     {
-      id: 3,
-      action: 'Dashboard Access',
-      timestamp: '2025-01-11T11:45:00Z',
-      device: 'Chrome on Windows',
-      location: 'New York, USA',
-      status: 'info'
-    },
-    {
-      id: 4,
-      action: 'Prediction Generated',
-      timestamp: '2025-01-11T10:15:00Z',
-      device: 'Chrome on Windows',
-      location: 'New York, USA',
-      status: 'success'
-    },
-    {
-      id: 5,
+      id: 'created',
       action: 'Account Created',
-      timestamp: user?.createdAt,
-      device: 'Chrome on Windows',
-      location: 'New York, USA',
+      timestamp: user?.created_at || user?.createdAt,
+      device: 'Current Browser',
+      location: 'Account',
       status: 'success'
     }
-  ];
+  ].filter((item) => item.timestamp);
 
   const formatRelativeTime = (dateString) => {
     const date = new Date(dateString);
@@ -80,7 +64,7 @@ const ActivitySection = ({ user }) => {
         </div>
       </div>
       <div className="space-y-4">
-        {activityData?.map((activity) => {
+        {activityData.slice(0, 10).map((activity) => {
           const statusConfig = getStatusIcon(activity?.status);
           
           return (

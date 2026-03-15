@@ -4,6 +4,10 @@ import time
 import sys
 import os
 
+# Add parent directory to sys.path to import utils
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
+# from utils.exchange_rate import get_usd_to_inr
+
 # Ensure UTF-8 output on Windows
 try:
     sys.stdout.reconfigure(encoding='utf-8')
@@ -11,10 +15,10 @@ except AttributeError:
     pass
 
 # Configuration
-instrument = "LINK-USD"
+instrument = "LINK-INR"
 market = "cadli"
 aggregate = 1
-usd_to_inr = 87.43  # conversion rate
+# usd_to_inr = 87.43  # Removed static rate
 batch_limit = 2000   # max days per request
 api_key = "0f4bf6167c05f388a4a22bb9bbd9e546cf9ef08c3556ee3dd97626292f84dbdf"
 output_file = "chainlink_coin_inr_daily.csv"
@@ -68,11 +72,6 @@ while True:
 
     # Convert timestamp to readable date
     df["DATE"] = pd.to_datetime(df["TIMESTAMP"], unit="s")
-
-    # Convert OHLC to INR
-    for col in ["OPEN", "HIGH", "LOW", "CLOSE"]:
-        if col in df.columns:
-            df[col] = df[col] * usd_to_inr
 
     # Append to CSV
     df.to_csv(output_file, mode='a', index=False, header=not os.path.exists(output_file))

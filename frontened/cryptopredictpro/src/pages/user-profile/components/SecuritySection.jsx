@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
-const SecuritySection = ({ user, onLogout }) => {
+const SecuritySection = ({ user, sessionInfo, sessionMessage, sessionError, onLogout, onRefreshSession }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogoutClick = () => {
@@ -20,17 +20,24 @@ const SecuritySection = ({ user, onLogout }) => {
     setShowLogoutConfirm(false);
   };
 
+  const formatDateTime = (value) => {
+    if (!value) return 'N/A';
+    return new Date(value).toLocaleString();
+  };
+
+  const authMethod = user?.provider === 'google' ? 'Google OAuth 2.0' : 'Email + Password';
+
   const securityItems = [
     {
       title: 'Current Session',
-      description: 'Chrome on Windows - New York, USA',
+      description: `Active on this browser. Refreshed: ${formatDateTime(sessionInfo?.refreshedAt)}`,
       icon: 'Monitor',
       status: 'active',
       action: null
     },
     {
       title: 'Authentication Method',
-      description: `${user?.provider} OAuth 2.0`,
+      description: authMethod,
       icon: 'Shield',
       status: 'secure',
       action: null
@@ -118,6 +125,7 @@ const SecuritySection = ({ user, onLogout }) => {
           
           <Button
             variant="outline"
+            onClick={onRefreshSession}
             iconName="RefreshCw"
             iconPosition="left"
             className="flex-1 sm:flex-none"
@@ -125,6 +133,15 @@ const SecuritySection = ({ user, onLogout }) => {
             Refresh Session
           </Button>
         </div>
+        {sessionMessage && (
+          <p className="mt-3 text-sm text-success">{sessionMessage}</p>
+        )}
+        {sessionError && (
+          <p className="mt-3 text-sm text-error">{sessionError}</p>
+        )}
+        <p className="mt-2 text-xs text-muted-foreground">
+          Session expires: {formatDateTime(sessionInfo?.expiresAt)}
+        </p>
       </div>
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (

@@ -118,7 +118,7 @@ const Select = React.forwardRef(({
                     id={selectId}
                     type="button"
                     className={cn(
-                        "flex h-10 w-full items-center justify-between rounded-md border border-input bg-white text-black px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                        "flex h-11 w-full items-center justify-between rounded-xl border border-border/80 bg-input/75 text-foreground px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-smooth",
                         error && "border-destructive focus:ring-destructive",
                         !hasValue && "text-muted-foreground"
                     )}
@@ -173,9 +173,9 @@ const Select = React.forwardRef(({
 
                 {/* Dropdown */}
                 {isOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-white text-black border border-border rounded-md shadow-md">
+                    <div className="absolute z-[999] w-full mt-2 rounded-xl border border-border/80 bg-[#08162b] text-foreground shadow-[0_30px_70px_rgba(0,0,0,0.8)] overflow-hidden">
                         {searchable && (
-                            <div className="p-2 border-b">
+                            <div className="p-2 border-b border-border/70">
                                 <div className="relative">
                                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                     <Input
@@ -198,8 +198,8 @@ const Select = React.forwardRef(({
                                     <div
                                         key={option?.value}
                                         className={cn(
-                                            "relative flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                                            isSelected(option?.value) && "bg-primary text-primary-foreground",
+                                            "relative mx-1 flex cursor-pointer select-none items-center rounded-lg px-3 py-2.5 text-sm font-medium outline-none transition-smooth hover:bg-muted/80 hover:text-white",
+                                            isSelected(option?.value) && "bg-primary text-white shadow-lg",
                                             option?.disabled && "pointer-events-none opacity-50"
                                         )}
                                         onClick={() => !option?.disabled && handleOptionSelect(option)}

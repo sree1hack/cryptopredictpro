@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
@@ -6,84 +7,175 @@
 
 @layer base {
   :root {
-    /* Core Colors */
-    --color-background: #FAFBFC; /* gray-50 */
-    --color-foreground: #1F2937; /* gray-800 */
-    --color-border: #E5E7EB; /* gray-200 */
-    --color-input: #FFFFFF; /* white */
-    --color-ring: #1E40AF; /* blue-700 */
-    
-    /* Card Colors */
-    --color-card: #FFFFFF; /* white */
-    --color-card-foreground: #1F2937; /* gray-800 */
-    
-    /* Popover Colors */
-    --color-popover: #FFFFFF; /* white */
-    --color-popover-foreground: #1F2937; /* gray-800 */
-    
-    /* Muted Colors */
-    --color-muted: #F9FAFB; /* gray-50 */
-    --color-muted-foreground: #6B7280; /* gray-500 */
-    
-    /* Primary Colors */
-    --color-primary: #1E40AF; /* blue-700 */
-    --color-primary-foreground: #FFFFFF; /* white */
-    
-    /* Secondary Colors */
-    --color-secondary: #64748B; /* slate-500 */
-    --color-secondary-foreground: #FFFFFF; /* white */
-    
-    /* Accent Colors */
-    --color-accent: #F59E0B; /* amber-500 */
-    --color-accent-foreground: #1F2937; /* gray-800 */
-    
-    /* Success Colors */
-    --color-success: #10B981; /* emerald-500 */
-    --color-success-foreground: #FFFFFF; /* white */
-    
-    /* Warning Colors */
-    --color-warning: #F59E0B; /* amber-500 */
-    --color-warning-foreground: #1F2937; /* gray-800 */
-    
-    /* Error/Destructive Colors */
-    --color-error: #EF4444; /* red-500 */
-    --color-error-foreground: #FFFFFF; /* white */
-    --color-destructive: #EF4444; /* red-500 */
-    --color-destructive-foreground: #FFFFFF; /* white */
+    --color-background: #030916;
+    --color-foreground: #d7e4f9;
+    --color-border: #1a2a42;
+    --color-input: #071224;
+    --color-ring: #24b8ff;
+    --color-card: #071428;
+    --color-card-foreground: #e8f0ff;
+    --color-popover: #08162b;
+    --color-popover-foreground: #e8f0ff;
+    --color-muted: #0e1c33;
+    --color-muted-foreground: #8ea4c2;
+    --color-primary: #24b8ff;
+    --color-primary-foreground: #031220;
+    --color-secondary: #233a63;
+    --color-secondary-foreground: #e8f0ff;
+    --color-accent: #14d5b8;
+    --color-accent-foreground: #032920;
+    --color-success: #29dca4;
+    --color-success-foreground: #03281e;
+    --color-warning: #ffbe47;
+    --color-warning-foreground: #362100;
+    --color-error: #ff6f6b;
+    --color-error-foreground: #3d0808;
+    --color-destructive: #ff6f6b;
+    --color-destructive-foreground: #3d0808;
   }
 
   * {
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Sora', sans-serif;
+    background-image:
+      radial-gradient(44rem 32rem at -4% -6%, rgba(36, 184, 255, 0.24), transparent),
+      radial-gradient(40rem 28rem at 110% -10%, rgba(20, 213, 184, 0.22), transparent),
+      linear-gradient(180deg, #030916 0%, #030d1b 42%, #041024 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.015em;
   }
 
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(36, 184, 255, 0.55), rgba(20, 213, 184, 0.55));
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(7, 20, 40, 0.35);
+  }
 }
 
 @layer components {
   .shadow-card {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 18px 50px rgba(1, 8, 20, 0.52);
   }
 
   .shadow-modal {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 28px 68px rgba(0, 6, 18, 0.62);
   }
 
   .transition-smooth {
-    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 220ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .transition-large {
-    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .neo-card {
+    @apply rounded-2xl border border-border backdrop-blur-xl shadow-card;
+    background: rgba(7, 20, 40, 0.72);
+  }
+
+  .glass-panel {
+    background: linear-gradient(
+      150deg,
+      rgba(13, 31, 57, 0.7),
+      rgba(7, 20, 40, 0.78)
+    );
+    border: 1px solid rgba(97, 130, 176, 0.25);
+    box-shadow: 0 24px 48px rgba(2, 9, 24, 0.5);
+    backdrop-filter: blur(16px);
+  }
+
+  .hud-border {
+    position: relative;
+  }
+
+  .hud-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(120deg, rgba(36, 184, 255, 0.6), rgba(20, 213, 184, 0.35), rgba(36, 184, 255, 0.08));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .grid-background {
+    background-image:
+      linear-gradient(rgba(97, 130, 176, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(97, 130, 176, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+  }
+
+  .floating-orb {
+    animation: orbital-float 8s ease-in-out infinite;
+  }
+
+  .soft-glow {
+    box-shadow: 0 0 0 1px rgba(36, 184, 255, 0.16), 0 0 28px rgba(36, 184, 255, 0.22);
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(95deg, #b8ebff 0%, #8be3da 52%, #7cbcff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .fade-up {
+    animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes orbital-float {
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.02);
   }
 }
