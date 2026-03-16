@@ -769,10 +769,11 @@ def background_sync():
             print(f"❌ Background sync error: {e}")
         time.sleep(900)  # Sync every 15 minutes for fresher data
 
+# Start sync thread unconditionally so gunicorn workers trigger it
+print("⏲️ Starting background sync thread...")
+threading.Thread(target=background_sync, daemon=True).start()
+
 if __name__ == "__main__":
-    # Start sync thread
-    print("⏲️ Starting background sync thread...")
-    threading.Thread(target=background_sync, daemon=True).start()
     
     # Use environment port for deployment (Render/Heroku/etc)
     port = int(os.environ.get("PORT", 5001))
