@@ -12,7 +12,7 @@ COINS = {
     "BTC": "BTC-INR",
     "ETH": "ETH-INR",
     "DOGE": "DOGE-INR",
-    "LTC": "LITECOIN_INR", # Fixed symbol for LTC
+    "LTC": "LTC-INR",
     "DOT": "DOT-INR",
     "MATIC": "MATIC-INR",
     "XRP": "XRP-INR",
