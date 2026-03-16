@@ -638,6 +638,19 @@ def execute_live_trade():
     except Exception as e:
         return jsonify({"success": False, "error": f"Live trade failed: {e}"}), 500
 
+@app.route("/debug_sql", methods=["GET"])
+def debug_sql():
+    try:
+        query = request.args.get('q', 'SELECT COUNT(*) FROM ohlcv WHERE coin="BTC" AND timeframe="daily"')
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(query)
+        result = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return jsonify({"success": True, "result": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
 @app.route("/predict", methods=["POST"])
 def predict():
     print("📥 Received prediction request")
