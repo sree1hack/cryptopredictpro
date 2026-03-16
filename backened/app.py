@@ -200,6 +200,11 @@ def get_all_prices():
             data = resp.json().get("data", {}).get("ticker", [])
             if data:
                 ticker_data = [{"symbol": item["symbol"].replace("-", ""), "price": item["last"]} for item in data if item.get("symbol") and item.get("last")]
+                # KuCoin renamed MATIC to POL. Map POLUSDT back to MATICUSDT for the frontend.
+                for item in ticker_data:
+                    if item["symbol"] == "POLUSDT":
+                        ticker_data.append({"symbol": "MATICUSDT", "price": item["price"]})
+                        break
         except Exception:
             pass
             
