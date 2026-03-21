@@ -654,7 +654,19 @@ def debug_sql():
         conn.close()
         return jsonify({"success": True, "result": result})
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
+        return jsonify({"success": False, "error": f"Debug SQL Error: {e}"}), 500
+
+@app.route("/debug_fs")
+def debug_fs():
+    target = request.args.get("path", MODEL_PATH)
+    try:
+        import os
+        if not os.path.exists(target):
+            return jsonify({"error": f"Path not found: {target}"})
+        items = os.listdir(target)
+        return jsonify({"path": target, "items": items})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 @app.route("/predict", methods=["POST"])
 def predict():
